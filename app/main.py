@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from app.database import engine, Base, get_db
@@ -26,6 +26,12 @@ User, require_auth = init_auth(app, engine, Base, get_db, app_name="AI Notes")
 # Initialize Pay
 create_checkout, get_customer, require_subscription = init_pay(app, engine, Base, get_db, app_name="AI Notes")
 
+# Wrapper: chain auth -> subscription check so require_subscription gets user_id
+# viv-auth uses encrypted session cookie (viv_session), not a user_id cookie,
+# so require_subscription can't find user_id on its own.
+async def require_active_subscription(request: Request, user=Depends(require_auth)):
+    return await require_subscription(request, user_id=user.id)
+
 # Inject dependencies into routes module
 routes_module.User = User
 routes_module.require_auth = require_auth
@@ -35,7 +41,7 @@ routes_module.get_customer = get_customer
 
 # Override dependency getters
 app.dependency_overrides[routes_module.get_current_user] = require_auth
-app.dependency_overrides[routes_module.get_active_subscription] = require_subscription
+app.dependency_overrides[routes_module.get_active_subscription] = require_active_subscription
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
