@@ -18,7 +18,7 @@ async def list_accounts(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == user.id).all()
+    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == str(user.id)).all()
     return templates.TemplateResponse("accounts/list.html", {"request": request, "user": user, "accounts": accounts})
 
 @router.get("/accounts/new", response_class=HTMLResponse)
@@ -41,7 +41,7 @@ async def create_account(
     sub: Any = Depends(get_active_subscription)
 ):
     new_account = SocialAccount(
-        user_id=user.id,
+        user_id=str(user.id),
         platform=platform,
         account_name=account_name,
         account_id=account_id,
@@ -60,7 +60,7 @@ async def account_detail(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    account = db.query(SocialAccount).filter(SocialAccount.id == id, SocialAccount.user_id == user.id).first()
+    account = db.query(SocialAccount).filter(SocialAccount.id == id, SocialAccount.user_id == str(user.id)).first()
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     
@@ -95,7 +95,7 @@ async def update_account(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    account = db.query(SocialAccount).filter(SocialAccount.id == id, SocialAccount.user_id == user.id).first()
+    account = db.query(SocialAccount).filter(SocialAccount.id == id, SocialAccount.user_id == str(user.id)).first()
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     
@@ -115,7 +115,7 @@ async def delete_account(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    account = db.query(SocialAccount).filter(SocialAccount.id == id, SocialAccount.user_id == user.id).first()
+    account = db.query(SocialAccount).filter(SocialAccount.id == id, SocialAccount.user_id == str(user.id)).first()
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     

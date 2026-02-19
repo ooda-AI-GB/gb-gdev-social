@@ -20,7 +20,7 @@ async def list_posts(
     sub: Any = Depends(get_active_subscription),
     tab: str = "all"
 ):
-    query = db.query(Post).filter(Post.user_id == user.id)
+    query = db.query(Post).filter(Post.user_id == str(user.id))
     
     if tab == "drafts":
         query = query.filter(Post.status == "draft")
@@ -47,8 +47,8 @@ async def new_post_form(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == user.id).all()
-    hashtag_groups = db.query(HashtagGroup).filter(HashtagGroup.user_id == user.id).all()
+    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == str(user.id)).all()
+    hashtag_groups = db.query(HashtagGroup).filter(HashtagGroup.user_id == str(user.id)).all()
     return templates.TemplateResponse("posts/form.html", {
         "request": request, 
         "user": user,
@@ -78,7 +78,7 @@ async def create_post(
             pass # Handle error or ignore
             
     new_post = Post(
-        user_id=user.id,
+        user_id=str(user.id),
         account_id=account_id,
         content=content,
         post_type=post_type,
@@ -100,7 +100,7 @@ async def post_detail(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    post = db.query(Post).filter(Post.id == id, Post.user_id == user.id).first()
+    post = db.query(Post).filter(Post.id == id, Post.user_id == str(user.id)).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return templates.TemplateResponse("posts/detail.html", {"request": request, "user": user, "post": post})
@@ -113,12 +113,12 @@ async def edit_post_form(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    post = db.query(Post).filter(Post.id == id, Post.user_id == user.id).first()
+    post = db.query(Post).filter(Post.id == id, Post.user_id == str(user.id)).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
-    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == user.id).all()
-    hashtag_groups = db.query(HashtagGroup).filter(HashtagGroup.user_id == user.id).all()
+    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == str(user.id)).all()
+    hashtag_groups = db.query(HashtagGroup).filter(HashtagGroup.user_id == str(user.id)).all()
     
     return templates.TemplateResponse("posts/form.html", {
         "request": request, 
@@ -143,7 +143,7 @@ async def update_post(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    post = db.query(Post).filter(Post.id == id, Post.user_id == user.id).first()
+    post = db.query(Post).filter(Post.id == id, Post.user_id == str(user.id)).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
@@ -173,7 +173,7 @@ async def delete_post(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    post = db.query(Post).filter(Post.id == id, Post.user_id == user.id).first()
+    post = db.query(Post).filter(Post.id == id, Post.user_id == str(user.id)).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
@@ -189,7 +189,7 @@ async def publish_post(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    post = db.query(Post).filter(Post.id == id, Post.user_id == user.id).first()
+    post = db.query(Post).filter(Post.id == id, Post.user_id == str(user.id)).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     

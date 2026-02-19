@@ -21,14 +21,14 @@ async def dashboard(
     sub: Any = Depends(get_active_subscription)
 ):
     # Seed data check
-    if db.query(SocialAccount).filter(SocialAccount.user_id == user.id).count() == 0:
-        seed_social_pro(db, user.id)
+    if db.query(SocialAccount).filter(SocialAccount.user_id == str(user.id)).count() == 0:
+        seed_social_pro(db, str(user.id))
 
     # Upcoming posts (next 7 days)
     now = datetime.now()
     next_week = now + timedelta(days=7)
     upcoming_posts = db.query(Post).filter(
-        Post.user_id == user.id,
+        Post.user_id == str(user.id),
         Post.status == "scheduled",
         Post.scheduled_at >= now,
         Post.scheduled_at <= next_week
@@ -37,12 +37,12 @@ async def dashboard(
     # Recent performance (this implies checking metrics, but for dashboard maybe just some aggregates?)
     # "Recent performance metrics (total reach, engagement, followers gained this week)"
     # I'll just get total followers from accounts for now
-    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == user.id).all()
+    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == str(user.id)).all()
     total_followers = sum(acc.followers_count for acc in accounts)
     
     # Latest AI ideas
     ai_ideas = db.query(AIContentIdea).filter(
-        AIContentIdea.user_id == user.id,
+        AIContentIdea.user_id == str(user.id),
         AIContentIdea.used == False
     ).order_by(desc(AIContentIdea.created_at)).limit(5).all()
 

@@ -18,7 +18,7 @@ async def list_hashtags(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    groups = db.query(HashtagGroup).filter(HashtagGroup.user_id == user.id).all()
+    groups = db.query(HashtagGroup).filter(HashtagGroup.user_id == str(user.id)).all()
     return templates.TemplateResponse("hashtags/list.html", {"request": request, "user": user, "groups": groups})
 
 @router.get("/hashtags/new", response_class=HTMLResponse)
@@ -41,7 +41,7 @@ async def create_hashtag_group(
     sub: Any = Depends(get_active_subscription)
 ):
     new_group = HashtagGroup(
-        user_id=user.id,
+        user_id=str(user.id),
         name=name,
         hashtags=hashtags,
         category=category,
@@ -59,7 +59,7 @@ async def edit_hashtag_form(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    group = db.query(HashtagGroup).filter(HashtagGroup.id == id, HashtagGroup.user_id == user.id).first()
+    group = db.query(HashtagGroup).filter(HashtagGroup.id == id, HashtagGroup.user_id == str(user.id)).first()
     if not group:
         raise HTTPException(status_code=404, detail="Hashtag Group not found")
     return templates.TemplateResponse("hashtags/form.html", {"request": request, "user": user, "group": group})
@@ -76,7 +76,7 @@ async def update_hashtag_group(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    group = db.query(HashtagGroup).filter(HashtagGroup.id == id, HashtagGroup.user_id == user.id).first()
+    group = db.query(HashtagGroup).filter(HashtagGroup.id == id, HashtagGroup.user_id == str(user.id)).first()
     if not group:
         raise HTTPException(status_code=404, detail="Hashtag Group not found")
     
@@ -96,7 +96,7 @@ async def delete_hashtag_group(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    group = db.query(HashtagGroup).filter(HashtagGroup.id == id, HashtagGroup.user_id == user.id).first()
+    group = db.query(HashtagGroup).filter(HashtagGroup.id == id, HashtagGroup.user_id == str(user.id)).first()
     if not group:
         raise HTTPException(status_code=404, detail="Hashtag Group not found")
     

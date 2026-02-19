@@ -21,7 +21,7 @@ async def analytics_overview(
 ):
     # Total metrics across all accounts (basic summary)
     # Using python aggregation for simplicity, or complex SQL
-    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == user.id).all()
+    accounts = db.query(SocialAccount).filter(SocialAccount.user_id == str(user.id)).all()
     account_ids = [acc.id for acc in accounts]
     
     total_reach = 0
@@ -59,7 +59,7 @@ async def get_metrics(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    query = db.query(PostMetric).join(Post).filter(Post.user_id == user.id)
+    query = db.query(PostMetric).join(Post).filter(Post.user_id == str(user.id))
     
     if account_id:
         query = query.filter(Post.account_id == account_id)
@@ -107,7 +107,7 @@ async def get_top_posts(
 ):
     # Join Post and Metric, order by engagement_rate
     results = db.query(Post, PostMetric).join(PostMetric).filter(
-        Post.user_id == user.id
+        Post.user_id == str(user.id)
     ).order_by(desc(PostMetric.engagement_rate)).limit(limit).all()
     
     data = []

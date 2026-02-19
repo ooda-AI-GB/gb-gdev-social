@@ -20,10 +20,10 @@ async def calendar_view(
     sub: Any = Depends(get_active_subscription)
 ):
     # Fetch all entries for user
-    entries = db.query(ContentCalendar).filter(ContentCalendar.user_id == user.id).all()
+    entries = db.query(ContentCalendar).filter(ContentCalendar.user_id == str(user.id)).all()
     # Fetch all scheduled posts for user
     scheduled_posts = db.query(Post).filter(
-        Post.user_id == user.id, 
+        Post.user_id == str(user.id), 
         Post.status == "scheduled",
         Post.scheduled_at != None
     ).all()
@@ -49,7 +49,7 @@ async def calendar_day(
         raise HTTPException(status_code=400, detail="Invalid date format")
         
     entries = db.query(ContentCalendar).filter(
-        ContentCalendar.user_id == user.id,
+        ContentCalendar.user_id == str(user.id),
         ContentCalendar.date == view_date
     ).all()
     
@@ -60,7 +60,7 @@ async def calendar_day(
     end_dt = datetime.combine(view_date, datetime.max.time())
     
     posts = db.query(Post).filter(
-        Post.user_id == user.id,
+        Post.user_id == str(user.id),
         Post.scheduled_at >= start_dt,
         Post.scheduled_at <= end_dt
     ).all()
@@ -89,7 +89,7 @@ async def create_entry(
     entry_date = date.fromisoformat(date_str)
     
     new_entry = ContentCalendar(
-        user_id=user.id,
+        user_id=str(user.id),
         title=title,
         date=entry_date,
         category=category,
@@ -109,7 +109,7 @@ async def delete_entry(
     user: Any = Depends(get_current_user),
     sub: Any = Depends(get_active_subscription)
 ):
-    entry = db.query(ContentCalendar).filter(ContentCalendar.id == id, ContentCalendar.user_id == user.id).first()
+    entry = db.query(ContentCalendar).filter(ContentCalendar.id == id, ContentCalendar.user_id == str(user.id)).first()
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
     

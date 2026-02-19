@@ -26,7 +26,7 @@ async def ai_studio(
     sub: Any = Depends(get_active_subscription)
 ):
     # Get recent ideas
-    recent_ideas = db.query(AIContentIdea).filter(AIContentIdea.user_id == user.id).order_by(AIContentIdea.created_at.desc()).limit(10).all()
+    recent_ideas = db.query(AIContentIdea).filter(AIContentIdea.user_id == str(user.id)).order_by(AIContentIdea.created_at.desc()).limit(10).all()
     has_api_key = os.environ.get("GOOGLE_API_KEY") is not None
     
     return templates.TemplateResponse("ai/studio.html", {
@@ -69,7 +69,7 @@ async def generate_ideas(
         saved_ideas = []
         for idea in ideas:
             new_idea = AIContentIdea(
-                user_id=user.id,
+                user_id=str(user.id),
                 platform=platform,
                 idea_type=content_type,
                 title=idea.get("title", "Untitled"),
