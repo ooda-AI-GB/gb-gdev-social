@@ -1,0 +1,48 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Connect Account - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">Connect Account</div>
+</div>
+
+<div class="card">
+    <div class="alert alert-info mb-4" style="background: var(--bg-light); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--border);">
+        ℹ️ API integration coming soon. For now, please enter account details manually.
+    </div>
+
+    <form action="/accounts/new" method="post">
+        <div class="form-group">
+            <label class="form-label">Platform</label>
+            <select name="platform" class="form-control" required>
+                <option value="twitter">Twitter</option>
+                <option value="instagram">Instagram</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="facebook">Facebook</option>
+                <option value="tiktok">TikTok</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Account Name (Handle)</label>
+            <input type="text" name="account_name" class="form-control" placeholder="@username" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Account ID (Optional)</label>
+            <input type="text" name="account_id" class="form-control" placeholder="123456789">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Avatar URL (Optional)</label>
+            <input type="text" name="avatar_url" class="form-control" placeholder="https://...">
+        </div>
+        
+        <div class="flex gap-2 mt-4">
+            <a href="/accounts" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Connect Account</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

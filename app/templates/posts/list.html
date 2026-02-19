@@ -1,0 +1,42 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Posts - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">Posts</div>
+    <a href="/posts/new" class="btn btn-primary">New Post</a>
+</div>
+
+<div class="tabs">
+    <a href="/posts?tab=all" class="tab {% if tab == 'all' %}active{% endif %}">All</a>
+    <a href="/posts?tab=drafts" class="tab {% if tab == 'drafts' %}active{% endif %}">Drafts</a>
+    <a href="/posts?tab=scheduled" class="tab {% if tab == 'scheduled' %}active{% endif %}">Scheduled</a>
+    <a href="/posts?tab=published" class="tab {% if tab == 'published' %}active{% endif %}">Published</a>
+</div>
+
+<div class="grid grid-2">
+    {% for post in posts %}
+    <div class="card mb-2" style="padding: 1rem; border: 1px solid var(--border);">
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-2">
+                <span class="platform-icon bg-{{ post.account.platform }}">{{ post.account.platform[0]|upper }}</span>
+                <span class="font-bold">{{ post.account.account_name }}</span>
+            </div>
+            <span class="badge badge-{{ post.status }}">{{ post.status|title }}</span>
+        </div>
+        <p class="mb-2">{{ post.content[:140] }}{% if post.content|length > 140 %}...{% endif %}</p>
+        <div class="flex justify-between items-center text-sm text-secondary">
+            {% if post.status == 'scheduled' %}
+                <span>📅 Scheduled: {{ post.scheduled_at.strftime('%b %d, %H:%M') }}</span>
+            {% elif post.status == 'published' %}
+                <span>📅 Published: {{ post.published_at.strftime('%b %d, %H:%M') }}</span>
+            {% else %}
+                <span>🕒 Created: {{ post.created_at.strftime('%b %d, %H:%M') }}</span>
+            {% endif %}
+            <a href="/posts/{{ post.id }}" class="btn btn-outline btn-sm">View</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

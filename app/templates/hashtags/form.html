@@ -1,0 +1,40 @@
+{% extends "layout/base.html" %}
+
+{% block title %}
+{% if group %}Edit Hashtags{% else %}New Hashtags{% endif %} - Social Pro
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">{% if group %}Edit Hashtags{% else %}New Hashtag Group{% endif %}</div>
+</div>
+
+<form method="post" class="card">
+    <div class="form-group">
+        <label class="form-label">Group Name</label>
+        <input type="text" name="name" class="form-control" value="{% if group %}{{ group.name }}{% endif %}" required>
+    </div>
+    
+    <div class="grid grid-2">
+        <div class="form-group">
+            <label class="form-label">Category</label>
+            <input type="text" name="category" class="form-control" value="{% if group %}{{ group.category }}{% endif %}" placeholder="e.g. Branded">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Avg Reach</label>
+            <input type="number" name="avg_reach" class="form-control" value="{% if group %}{{ group.avg_reach }}{% endif %}">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">Hashtags (JSON Array or Comma Separated)</label>
+        <textarea name="hashtags" class="form-control" rows="5" required>{% if group %}{{ group.hashtags }}{% endif %}</textarea>
+        <div class="text-sm text-secondary mt-1">Example: ["#social", "#marketing"]</div>
+    </div>
+    
+    <div class="flex gap-2 mt-4">
+        <a href="/hashtags" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Group</button>
+    </div>
+</form>
+{% endblock %}

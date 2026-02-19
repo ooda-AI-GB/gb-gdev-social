@@ -1,0 +1,140 @@
+{% extends "layout/base.html" %}
+
+{% block title %}
+{% if post %}Edit Post{% else %}New Post{% endif %} - Social Pro
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">{% if post %}Edit Post{% else %}New Post{% endif %}</div>
+</div>
+
+<form method="post" class="card">
+    <div class="grid grid-2">
+        <div class="form-group">
+            <label class="form-label">Account</label>
+            <select name="account_id" class="form-control" required>
+                {% for acc in accounts %}
+                <option value="{{ acc.id }}" {% if post and post.account_id == acc.id %}selected{% endif %}>
+                    {{ acc.account_name }} ({{ acc.platform }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Post Type</label>
+            <select name="post_type" class="form-control" required>
+                {% for type in ['text', 'image', 'video', 'carousel', 'story', 'reel'] %}
+                <option value="{{ type }}" {% if post and post.post_type == type %}selected{% endif %}>
+                    {{ type|title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Content</label>
+        <textarea name="content" id="content-input" class="form-control" rows="6" required>{% if post %}{{ post.content }}{% endif %}</textarea>
+        <div class="flex justify-between items-center mt-2">
+            <span class="text-sm text-secondary" id="char-count">0 chars</span>
+            <button type="button" id="ai-assist-btn" class="btn btn-outline btn-sm">✨ AI Assist</button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Media URLs (comma separated)</label>
+        <input type="text" name="media_urls" class="form-control" value="{% if post and post.media_urls %}{{ post.media_urls }}{% endif %}">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Hashtags</label>
+        <input type="text" name="hashtags" class="form-control" value="{% if post and post.hashtags %}{{ post.hashtags }}{% endif %}" placeholder="#marketing #social">
+        <div class="text-sm text-secondary mt-1">
+            Suggested Groups: 
+            {% for group in hashtag_groups %}
+            <span class="badge badge-draft cursor-pointer hashtag-group" data-tags="{{ group.hashtags }}">{{ group.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid grid-2">
+        <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control" required>
+                <option value="draft" {% if post and post.status == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="scheduled" {% if post and post.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                <option value="published" {% if post and post.status == 'published' %}selected{% endif %}>Published</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Schedule Time (if scheduled)</label>
+            <input type="datetime-local" name="scheduled_at" class="form-control" value="{% if post and post.scheduled_at %}{{ post.scheduled_at.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+        </div>
+    </div>
+
+    <div class="flex justify-between mt-4">
+        {% if post %}
+        <button type="submit" formaction="/posts/{{ post.id }}/delete" class="btn btn-danger">Delete</button>
+        {% else %}
+        <div></div> <!-- Spacer -->
+        {% endif %}
+        <div class="flex gap-2">
+            <a href="/posts" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Post</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Character counter
+    const contentInput = document.getElementById('content-input');
+    const charCount = document.getElementById('char-count');
+    contentInput.addEventListener('input', () => {
+        charCount.textContent = contentInput.value.length + ' chars';
+    });
+
+    // Hashtag groups
+    document.querySelectorAll('.hashtag-group').forEach(badge => {
+        badge.addEventListener('click', () => {
+            const tags = JSON.parse(badge.dataset.tags);
+            const input = document.querySelector('input[name="hashtags"]');
+            const current = input.value ? input.value + ' ' : '';
+            input.value = current + tags.join(' ');
+        });
+    });
+
+    // AI Assist
+    document.getElementById('ai-assist-btn').addEventListener('click', async () => {
+        const content = contentInput.value;
+        if (!content) return alert('Please enter some content context first.');
+        
+        const btn = document.getElementById('ai-assist-btn');
+        btn.disabled = true;
+        btn.textContent = 'Generating...';
+        
+        try {
+            const formData = new FormData();
+            formData.append('description', content);
+            const response = await fetch('/api/ai/caption', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.caption) {
+                contentInput.value = data.caption;
+                charCount.textContent = contentInput.value.length + ' chars';
+            } else {
+                alert('Failed to generate: ' + (data.error || 'Unknown error'));
+            }
+        } catch (e) {
+            alert('Error: ' + e.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '✨ AI Assist';
+        }
+    });
+</script>
+{% endblock %}

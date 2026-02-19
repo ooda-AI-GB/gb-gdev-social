@@ -1,0 +1,46 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Accounts - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">Accounts</div>
+    <a href="/accounts/new" class="btn btn-primary">Connect Account</a>
+</div>
+
+<div class="grid grid-2">
+    {% for account in accounts %}
+    <div class="card p-4">
+        <div class="flex items-center gap-4 mb-4">
+            <img src="{{ account.avatar_url }}" style="width: 50px; height: 50px; border-radius: 50%;" alt="Avatar">
+            <div>
+                <h3 class="font-bold text-lg">{{ account.account_name }}</h3>
+                <div class="text-sm text-secondary flex items-center gap-1">
+                    <span class="platform-icon bg-{{ account.platform }}">{{ account.platform[0]|upper }}</span>
+                    {{ account.platform|title }}
+                </div>
+            </div>
+            <span class="badge badge-published ml-auto">{{ account.status }}</span>
+        </div>
+        
+        <div class="flex justify-between text-center mb-4 text-sm">
+            <div>
+                <div class="font-bold">{{ account.followers_count }}</div>
+                <div class="text-secondary">Followers</div>
+            </div>
+            <div>
+                <div class="font-bold">{{ account.following_count }}</div>
+                <div class="text-secondary">Following</div>
+            </div>
+        </div>
+        
+        <div class="flex gap-2">
+            <a href="/accounts/{{ account.id }}" class="btn btn-outline w-full text-center">Manage</a>
+            <form action="/accounts/{{ account.id }}/delete" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-sm">X</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

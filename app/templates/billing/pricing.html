@@ -1,34 +1,46 @@
 {% extends "layout/base.html" %}
 
+{% block title %}Pricing - Social Pro{% endblock %}
+
 {% block content %}
-<div class="top-bar">
-    <h1>Pricing</h1>
+<div class="page-header">
+    <div class="page-title">Pricing Plans</div>
+    <div class="text-secondary" style="font-size: 1.1rem;">Choose the plan that fits your social media goals</div>
 </div>
 
-<div class="pricing-grid">
-    <div class="plan-card">
-        <div class="plan-title">Free</div>
-        <div class="plan-price">$0 / month</div>
-        <ul class="features-list">
-            <li>Unlimited notes</li>
-            <li>Create, edit, delete</li>
-            <li>3 sample notes</li>
-            <li>Secure storage</li>
+<div class="grid grid-2">
+    <!-- Starter Plan -->
+    <div class="card">
+        <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">Starter</h2>
+        <div style="font-size: 2.25rem; font-weight: bold; margin-bottom: 1.5rem;">$0 <span class="text-sm font-normal text-muted" style="font-size: 0.875rem;">/ month</span></div>
+        <ul style="list-style: none; margin-bottom: 2rem;">
+            <li class="flex items-center gap-2 mb-2">✅ 2 Social Accounts</li>
+            <li class="flex items-center gap-2 mb-2">✅ 10 Scheduled Posts/mo</li>
+            <li class="flex items-center gap-2 mb-2">✅ Basic Analytics</li>
+            <li class="flex items-center gap-2 mb-2">✅ Manual Posting</li>
         </ul>
-        <a href="/auth/login" class="btn btn-outline" style="width: 100%; display: block; text-align: center;">Get Started</a>
+        <a href="/auth/login" class="btn btn-outline" style="width: 100%; justify-content: center;">Get Started</a>
     </div>
 
-    <div class="plan-card premium">
-        <div class="plan-title">Premium</div>
-        <div class="plan-price">$9 / month</div>
-        <ul class="features-list">
-            <li>Everything in Free</li>
-            <li>AI Summarization</li>
-            <li>AI Chat (Coming Soon)</li>
-            <li>Priority Support</li>
+    <!-- Growth Plan -->
+    <div class="card" style="border: 2px solid var(--primary);">
+        <div class="flex justify-between items-center mb-4">
+            <h2 style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">Growth</h2>
+            <span class="badge" style="background: var(--bg-light); color: var(--primary);">Most Popular</span>
+        </div>
+        <div style="font-size: 2.25rem; font-weight: bold; margin-bottom: 1.5rem;">$49 <span class="text-sm font-normal text-muted" style="font-size: 0.875rem;">/ month</span></div>
+        <ul style="list-style: none; margin-bottom: 2rem;">
+            <li class="flex items-center gap-2 mb-2">✅ Everything in Starter</li>
+            <li class="flex items-center gap-2 mb-2">✅ Unlimited Accounts & Posts</li>
+            <li class="flex items-center gap-2 mb-2">✅ AI Content Generation</li>
+            <li class="flex items-center gap-2 mb-2">✅ AI Hashtag Research</li>
+            <li class="flex items-center gap-2 mb-2">✅ Content Calendar</li>
+            <li class="flex items-center gap-2 mb-2">✅ Advanced Analytics</li>
+            <li class="flex items-center gap-2 mb-2">✅ Scheduled Publishing</li>
+            <li class="flex items-center gap-2 mb-2">✅ Priority Support</li>
         </ul>
         <form action="/subscribe" method="post">
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Subscribe</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Subscribe Now</button>
         </form>
     </div>
 </div>

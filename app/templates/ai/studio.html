@@ -1,0 +1,211 @@
+{% extends "layout/base.html" %}
+
+{% block title %}AI Studio - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">AI Studio</div>
+    {% if not has_api_key %}
+    <div class="badge badge-failed">Missing GOOGLE_API_KEY</div>
+    {% endif %}
+</div>
+
+{% if not has_api_key %}
+<div class="alert alert-danger mb-4 text-center">
+    ⚠️ AI features require a Google Gemini API Key. Please configure GOOGLE_API_KEY in your environment.
+</div>
+{% endif %}
+
+<div class="grid grid-2">
+    <!-- Idea Generator -->
+    <div class="card p-4">
+        <h3 class="font-bold mb-4">💡 Idea Generator</h3>
+        <form id="idea-form">
+            <div class="form-group">
+                <label class="form-label">Topic / Theme</label>
+                <input type="text" name="topic" class="form-control" placeholder="e.g. Sustainable Fashion" required>
+            </div>
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label class="form-label">Platform</label>
+                    <select name="platform" class="form-control">
+                        <option value="twitter">Twitter</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type</label>
+                    <select name="content_type" class="form-control">
+                        <option value="post">Post</option>
+                        <option value="thread">Thread</option>
+                        <option value="poll">Poll</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tone</label>
+                <select name="tone" class="form-control">
+                    <option value="professional">Professional</option>
+                    <option value="casual">Casual</option>
+                    <option value="humorous">Humorous</option>
+                    <option value="inspirational">Inspirational</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Generate Ideas</button>
+        </form>
+        <div id="idea-results" class="mt-4"></div>
+    </div>
+
+    <!-- Recent Ideas -->
+    <div class="card p-4">
+        <h3 class="font-bold mb-4">✨ Recent Generations</h3>
+        <div class="overflow-y-auto" style="max-height: 400px;">
+            {% for idea in recent_ideas %}
+            <div class="mb-3 pb-3 border-b">
+                <div class="font-bold text-sm">{{ idea.title }}</div>
+                <div class="text-xs text-secondary mb-1">{{ idea.platform }} • {{ idea.idea_type }}</div>
+                <div class="text-sm bg-gray-50 p-2 rounded">{{ idea.content }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Hashtag Research -->
+    <div class="card p-4">
+        <h3 class="font-bold mb-4"># Hashtag Researcher</h3>
+        <form id="hashtag-form">
+            <div class="form-group">
+                <label class="form-label">Keyword</label>
+                <input type="text" name="keyword" class="form-control" placeholder="e.g. Digital Marketing" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Find Hashtags</button>
+        </form>
+        <div id="hashtag-results" class="mt-4"></div>
+    </div>
+    
+    <!-- Repurposer -->
+    <div class="card p-4">
+        <h3 class="font-bold mb-4">♻️ Content Repurposer</h3>
+        <form id="repurpose-form">
+            <div class="form-group">
+                <label class="form-label">Original Content</label>
+                <textarea name="content" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Target Platform</label>
+                <select name="target_platform" class="form-control">
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="instagram">Instagram</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Repurpose</button>
+        </form>
+        <div id="repurpose-results" class="mt-4"></div>
+    </div>
+</div>
+
+<script>
+    // Idea Generator
+    document.getElementById('idea-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const results = document.getElementById('idea-results');
+        
+        btn.disabled = true;
+        btn.textContent = 'Generating...';
+        results.innerHTML = '';
+        
+        try {
+            const formData = new FormData(e.target);
+            const res = await fetch('/api/ai/generate', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (data.ideas) {
+                data.ideas.forEach(idea => {
+                    results.innerHTML += `
+                        <div class="bg-gray-50 p-3 rounded mb-2 border border-gray-200">
+                            <div class="font-bold mb-1">${idea.title}</div>
+                            <div class="text-sm">${idea.content}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                results.innerHTML = `<div class="text-red-500 text-sm">Error: ${data.error}</div>`;
+            }
+        } catch (err) {
+            results.innerHTML = `<div class="text-red-500 text-sm">Failed to generate</div>`;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Generate Ideas';
+        }
+    });
+
+    // Hashtag Research
+    document.getElementById('hashtag-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const results = document.getElementById('hashtag-results');
+        
+        btn.disabled = true;
+        btn.textContent = 'Researching...';
+        results.innerHTML = '';
+        
+        try {
+            const formData = new FormData(e.target);
+            const res = await fetch('/api/ai/hashtags', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            // Assume format { high_reach: [], medium_reach: [], low_reach: [] }
+            let html = '';
+            if (data.high_reach) {
+                html += '<div class="mb-2"><div class="font-bold text-xs text-green-600">High Reach</div><div class="text-sm">' + data.high_reach.join(' ') + '</div></div>';
+            }
+            if (data.medium_reach) {
+                html += '<div class="mb-2"><div class="font-bold text-xs text-blue-600">Medium Reach</div><div class="text-sm">' + data.medium_reach.join(' ') + '</div></div>';
+            }
+            if (data.low_reach) {
+                html += '<div class="mb-2"><div class="font-bold text-xs text-gray-600">Low Reach</div><div class="text-sm">' + data.low_reach.join(' ') + '</div></div>';
+            }
+            
+            if (!html && data.error) html = `<div class="text-red-500 text-sm">Error: ${data.error}</div>`;
+            results.innerHTML = html;
+            
+        } catch (err) {
+            results.innerHTML = `<div class="text-red-500 text-sm">Failed to research</div>`;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Find Hashtags';
+        }
+    });
+    
+    // Repurpose
+    document.getElementById('repurpose-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const results = document.getElementById('repurpose-results');
+        
+        btn.disabled = true;
+        btn.textContent = 'Rewriting...';
+        results.innerHTML = '';
+        
+        try {
+            const formData = new FormData(e.target);
+            const res = await fetch('/api/ai/repurpose', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (data.content) {
+                results.innerHTML = `<div class="bg-gray-50 p-3 rounded border border-gray-200 text-sm whitespace-pre-wrap">${data.content}</div>`;
+            } else {
+                results.innerHTML = `<div class="text-red-500 text-sm">Error: ${data.error}</div>`;
+            }
+        } catch (err) {
+            results.innerHTML = `<div class="text-red-500 text-sm">Failed to repurpose</div>`;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Repurpose';
+        }
+    });
+</script>
+{% endblock %}

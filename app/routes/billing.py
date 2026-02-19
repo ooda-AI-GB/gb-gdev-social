@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 import app.routes as routes_module
 from app.routes import get_current_user
 from typing import Any
+import os
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -17,8 +18,14 @@ async def subscribe(request: Request, user: Any = Depends(get_current_user)):
     if not routes_module.create_checkout:
         raise HTTPException(status_code=500, detail="Billing not configured")
 
+    price_id = os.environ.get("STRIPE_PRICE_ID", "")
+    if not price_id:
+        # Fallback or error? Spec says "Read STRIPE_PRICE_ID ... NEVER hardcode".
+        # If empty, it will likely fail downstream or I should raise error.
+        raise HTTPException(status_code=500, detail="Stripe Price ID not configured")
+
     try:
-        url = routes_module.create_checkout(user_id=user.id, email=user.email, price_id="price_1T18q3EiGP71krhYyrOZ0Imn")
+        url = routes_module.create_checkout(user_id=user.id, email=user.email, price_id=price_id)
         return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Checkout failed: {str(e)[:200]}")

@@ -1,0 +1,81 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Calendar - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">Content Calendar</div>
+    <div class="flex gap-2">
+        <a href="/calendar?view=month" class="btn btn-primary">Month</a>
+        <a href="/calendar?view=week" class="btn btn-outline">Week</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="grid grid-7 text-center mb-4 text-secondary">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    
+    <div class="grid grid-7" style="border-top: 1px solid var(--border); border-left: 1px solid var(--border);">
+        {% set start_date = entries[0].date if entries else None %}
+        <!-- Simple calendar logic: just iterate days. In real app, use JS or server-side month calc -->
+        <!-- For prototype, we'll just show a list of entries grouped by date or simple grid if possible -->
+        <!-- Or better: just list entries as cards for now, or a simple table -->
+        
+        <!-- Let's try a simple list view for robustness instead of complex grid logic in Jinja -->
+        <div class="col-span-7 p-4">
+            {% for entry in entries %}
+            <div class="mb-2 p-2 rounded" style="background-color: {{ entry.color }}20; border-left: 4px solid {{ entry.color }};">
+                <div class="flex justify-between">
+                    <span class="font-bold">{{ entry.date.strftime('%b %d') }} - {{ entry.title }}</span>
+                    <span class="badge" style="background: {{ entry.color }}; color: white;">{{ entry.category }}</span>
+                </div>
+                <div class="text-sm">{{ entry.description }}</div>
+            </div>
+            {% endfor %}
+            
+            {% for post in scheduled_posts %}
+            <div class="mb-2 p-2 rounded" style="background-color: var(--bg-light); border-left: 4px solid var(--primary);">
+                <div class="flex justify-between">
+                    <span class="font-bold">{{ post.scheduled_at.strftime('%b %d, %H:%M') }} - {{ post.content[:30] }}...</span>
+                    <span class="badge badge-scheduled">Scheduled</span>
+                </div>
+                <div class="text-sm">Account: {{ post.account.account_name }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h3 class="font-bold mb-2">Add Entry</h3>
+    <form action="/calendar/entry" method="post" class="card">
+        <div class="grid grid-2">
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-control">
+                    <option value="promotional">Promotional</option>
+                    <option value="educational">Educational</option>
+                    <option value="engagement">Engagement</option>
+                    <option value="announcement">Announcement</option>
+                    <option value="user_generated">UGC</option>
+                    <option value="behind_scenes">Behind Scenes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Color</label>
+                <input type="color" name="color" class="form-control" value="#6366f1">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Entry</button>
+    </form>
+</div>
+{% endblock %}

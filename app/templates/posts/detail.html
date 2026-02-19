@@ -1,0 +1,75 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Post Detail - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">Post Detail</div>
+    <div class="flex gap-2">
+        <a href="/posts" class="btn btn-outline">Back</a>
+        <a href="/posts/{{ post.id }}/edit" class="btn btn-primary">Edit</a>
+        {% if post.status == 'draft' or post.status == 'scheduled' %}
+        <form action="/posts/{{ post.id }}/publish" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-primary">Publish Now</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <div class="flex justify-between mb-4">
+            <span class="badge badge-{{ post.status }}">{{ post.status|title }}</span>
+            <div class="flex items-center gap-2">
+                <span class="platform-icon bg-{{ post.account.platform }}">{{ post.account.platform[0]|upper }}</span>
+                <span class="font-bold">{{ post.account.account_name }}</span>
+            </div>
+        </div>
+        <p class="text-lg mb-4">{{ post.content }}</p>
+        {% if post.media_urls %}
+        <div class="mb-4">
+            <h4 class="font-bold text-sm mb-2">Media:</h4>
+            {% set urls = post.media_urls.split(',') %}
+            <div class="flex gap-2 overflow-x-auto">
+                {% for url in urls %}
+                <img src="{{ url }}" style="height: 100px; border-radius: 0.5rem;" alt="Media">
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <div class="text-sm text-secondary">
+            <div>Type: {{ post.post_type|title }}</div>
+            <div>Scheduled: {{ post.scheduled_at }}</div>
+            <div>Published: {{ post.published_at }}</div>
+        </div>
+    </div>
+
+    {% if post.metrics %}
+    <div class="card">
+        <h3 class="font-bold mb-4">Performance Metrics</h3>
+        <div class="grid grid-2">
+            <div class="text-center p-4 border rounded">
+                <div class="text-2xl font-bold">{{ post.metrics.likes }}</div>
+                <div class="text-sm text-secondary">Likes</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+                <div class="text-2xl font-bold">{{ post.metrics.comments }}</div>
+                <div class="text-sm text-secondary">Comments</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+                <div class="text-2xl font-bold">{{ post.metrics.shares }}</div>
+                <div class="text-sm text-secondary">Shares</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+                <div class="text-2xl font-bold">{{ post.metrics.reach }}</div>
+                <div class="text-sm text-secondary">Reach</div>
+            </div>
+        </div>
+        <div class="mt-4 text-center">
+            <div class="text-3xl font-bold text-primary">{{ post.metrics.engagement_rate }}%</div>
+            <div class="text-sm text-secondary">Engagement Rate</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

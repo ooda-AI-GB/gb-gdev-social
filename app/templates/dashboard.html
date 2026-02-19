@@ -1,0 +1,84 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Dashboard - Social Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <div class="text-secondary">Welcome back! Here's what's happening.</div>
+    </div>
+    <a href="/posts/new" class="btn btn-primary">Create Post</a>
+</div>
+
+{% if accounts|length == 0 %}
+<div class="card" style="text-align: center; padding: 4rem 2rem;">
+    <h2>Welcome to Social Pro! 👋</h2>
+    <p class="text-secondary mb-4">Connect your first social media account to get started.</p>
+    <a href="/accounts/new" class="btn btn-primary">Connect Account</a>
+</div>
+{% else %}
+
+<div class="grid grid-3 mb-4">
+    <div class="card">
+        <div class="metric-label">Total Followers</div>
+        <div class="metric-value">{{ total_followers }}</div>
+    </div>
+    <div class="card">
+        <div class="metric-label">Scheduled Posts</div>
+        <div class="metric-value">{{ upcoming_posts|length }}</div>
+    </div>
+    <div class="card">
+        <div class="metric-label">Connected Accounts</div>
+        <div class="metric-value">{{ accounts|length }}</div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <!-- Upcoming Posts -->
+    <div class="card">
+        <h3 class="font-bold mb-4">📅 Upcoming Posts (Next 7 Days)</h3>
+        {% if upcoming_posts %}
+            {% for post in upcoming_posts %}
+            <div class="card mb-2" style="padding: 1rem; border: 1px solid var(--border);">
+                <div class="flex justify-between mb-2">
+                    <span class="badge badge-scheduled">Scheduled</span>
+                    <span class="text-sm text-secondary">{{ post.scheduled_at.strftime('%b %d, %H:%M') }}</span>
+                </div>
+                <div class="mb-2">{{ post.content[:100] }}...</div>
+                <div class="flex items-center gap-2">
+                    <span class="platform-icon bg-{{ post.account.platform }}">{{ post.account.platform[0]|upper }}</span>
+                    <span class="text-sm font-bold">{{ post.account.account_name }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-secondary">No posts scheduled for the next 7 days.</p>
+        {% endif %}
+    </div>
+
+    <!-- AI Ideas -->
+    <div class="card">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold">✨ Recent AI Ideas</h3>
+            <a href="/ai" class="text-sm">View All</a>
+        </div>
+        {% if ai_ideas %}
+            {% for idea in ai_ideas %}
+            <div class="mb-4 pb-4" style="border-bottom: 1px solid var(--border);">
+                <div class="font-bold mb-1">{{ idea.title }}</div>
+                <p class="text-sm text-secondary mb-2">{{ idea.content[:80] }}...</p>
+                <div class="flex gap-2">
+                    <span class="badge" style="background: var(--bg-light);">{{ idea.platform }}</span>
+                    <span class="badge" style="background: var(--bg-light);">{{ idea.idea_type }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-secondary">No ideas generated yet. Visit AI Studio to get started!</p>
+            <a href="/ai" class="btn btn-outline btn-sm mt-2">Go to AI Studio</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
